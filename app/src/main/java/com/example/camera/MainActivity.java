@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FileDownloadTask;
@@ -54,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton camerabtn;
     StorageReference storageReference;
     String imageFileName;
+
+    String mDownloadUrl;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -115,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
 
             saveimage(img);
 
-
             //mongodpConnection(data);
         }
     }
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             storageReference.getFile(localfile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(MainActivity.this,"Successfuly get the image",Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this,"Successfully get the image",Toast.LENGTH_LONG).show();
                     Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
                     mImageView.setImageBitmap(bitmap);
                     System.out.println(bitmap);
@@ -186,6 +188,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(MainActivity.this, "Successfully upload", Toast.LENGTH_LONG).show();
+                    final Task<Uri> firebaseuri = taskSnapshot.getStorage().getDownloadUrl();
+                    firebaseuri.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            mDownloadUrl = uri.toString();
+                            System.out.println("Uri"+mDownloadUrl);
+                        }
+                    });
 
                     getImage(imageFileName);
                 }
